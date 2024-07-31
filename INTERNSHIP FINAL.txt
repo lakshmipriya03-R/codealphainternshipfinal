@@ -1,0 +1,209 @@
+                           TASK 4(BANKING SYSTEM)
+
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+class Customer {
+public:
+    string name;
+    int id;
+};
+
+class Account {
+public:
+    int id;
+    double balance;
+    Customer customer;
+
+    Account(int id, const Customer& cust) : id(id), balance(0), customer(cust) {}
+};
+
+class Transaction {
+public:
+    int id;
+    double amount;
+    string type; // deposit, withdrawal, transfer
+    Account* account;
+
+    Transaction(int id, double amount, const string& type, Account* account)
+        : id(id), amount(amount), type(type), account(account) {}
+};
+
+class BankingService {
+public:
+    vector<Customer> customers;
+    vector<Account> accounts;
+    vector<Transaction> transactions;
+
+    void createCustomer(const string& name) {
+        Customer customer{name, static_cast<int>(customers.size()) + 1};
+        customers.push_back(customer);
+    }
+
+    void createAccount(int customerId) {
+        if (customerId <= 0 || customerId > customers.size()) {
+            cout << "Invalid customer ID" << endl;
+            return;
+        }
+        Account account(static_cast<int>(accounts.size()) + 1, customers[customerId - 1]);
+        accounts.push_back(account);
+    }
+
+    void deposit(int accountId, double amount) {
+        if (accountId <= 0 || accountId > accounts.size()) {
+            cout << "Invalid account ID" << endl;
+            return;
+        }
+        accounts[accountId - 1].balance += amount;
+        transactions.emplace_back(transactions.size() + 1, amount, "deposit", &accounts[accountId - 1]);
+    }
+
+    void withdrawal(int accountId, double amount) {
+        if (accountId <= 0 || accountId > accounts.size()) {
+            cout << "Invalid account ID" << endl;
+            return;
+        }
+        accounts[accountId - 1].balance -= amount;
+        transactions.emplace_back(transactions.size() + 1, amount, "withdrawal", &accounts[accountId - 1]);
+    }
+
+    void transfer(int fromAccountId, int toAccountId, double amount) {
+        if (fromAccountId <= 0 || fromAccountId > accounts.size() || toAccountId <= 0 || toAccountId > accounts.size()) {
+            cout << "Invalid account ID(s)" << endl;
+            return;
+        }
+        accounts[fromAccountId - 1].balance -= amount;
+        accounts[toAccountId - 1].balance += amount;
+        transactions.emplace_back(transactions.size() + 1, amount, "transfer", &accounts[fromAccountId - 1]);
+    }
+
+    void viewAccountInfo(int accountId) {
+        if (accountId <= 0 || accountId > accounts.size()) {
+            cout << "Invalid account ID" << endl;
+            return;
+        }
+        cout << "Account ID: " << accounts[accountId - 1].id << endl;
+        cout << "Balance: " << accounts[accountId - 1].balance << endl;
+        cout << "Recent Transactions:" << endl;
+        for (const auto& transaction : transactions) {
+            if (transaction.account->id == accountId) {
+                cout << transaction.id << " " << transaction.type << " " << transaction.amount << endl;
+            }
+        }
+    }
+};
+
+int main() {
+    BankingService bankingService;
+    bankingService.createCustomer("John Doe");
+    bankingService.createAccount(1);
+    bankingService.deposit(1, 1000);
+    bankingService.withdrawal(1, 500);
+    bankingService.createCustomer("Jane Doe");
+    bankingService.createAccount(2);
+    bankingService.transfer(1, 2, 200);
+    bankingService.viewAccountInfo(1);
+    bankingService.viewAccountInfo(2);
+    return 0;
+}
+
+
+                                            TASK 1(CGPA CALCULATOR)
+
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class Course {
+public:
+    string name;
+    int credits;
+    char grade;
+
+    Course(string n, int c, char g) : name(n), credits(c), grade(g) {}
+};
+
+int main() {
+    int n;
+    cout << "Enter number of courses: ";
+    cin >> n;
+
+    vector<Course> courses;
+
+    for (int i = 0; i < n; ++i) {
+        string name;
+        int credits;
+        char grade;
+        cout << "Enter course name, credits, and grade for course " << i + 1 << ": ";
+        cin >> ws; // eat up any leading whitespace
+        getline(cin, name);
+        cin >> credits >> grade;
+        courses.emplace_back(name, credits, grade);
+    }
+
+    int totalCredits = 0;
+    float totalGradePoints = 0.0;
+
+    for (const auto& course : courses) {
+        int gradePoints = 0;
+        switch (course.grade) {
+            case 'A': gradePoints = 4; break;
+            case 'B': gradePoints = 3; break;
+            case 'C': gradePoints = 2; break;
+            case 'D': gradePoints = 1; break;
+            default: gradePoints = 0;
+        }
+
+        totalCredits += course.credits;
+        totalGradePoints += gradePoints * course.credits;
+    }
+
+    float gpa = totalGradePoints / totalCredits;
+
+    cout << "Total Credits: " << totalCredits << endl;
+    cout << "Total Grade Points: " << totalGradePoints << endl;
+    cout << "GPA: " << gpa << endl;
+
+    return 0;
+}
+
+                   TASK 2(LOGIN AND REGISTRATION SYSTEM)
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+struct User {
+    string username;
+    string password;
+};
+
+void registerUser() {
+    User user;
+    cout << "Enter username: ";
+    cin >> ws; // Eat up any leading whitespace
+    getline(cin, user.username);
+    cout << "Enter password: ";
+    getline(cin, user.password);
+
+    ofstream file(user.username + ".txt");
+    if (file.is_open()) {
+        file << user.username << endl;
+        file << user.password << endl;
+        file.close();
+        cout << "Registration successful!" << endl;
+    } else {
+        cout << "Unable to create file." << endl;
+    }
+}
+
+int main() {
+    registerUser();
+    return 0;
+}
+
